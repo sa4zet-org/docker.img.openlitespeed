@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Download openlitespeed repo gpg
+        run: |
+          curl --output 'etc/apt/trusted.gpg.d/lightspeed-debian-repo.gpg' 'http://rpms.litespeedtech.com/debian/lst_repo.gpg'
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker build and push
+        run: |
+          now=$(date --utc +"%Y.%-m.%-d.%-H.%-M.%-S")
+          openlitespeed_img_name='ghcr.io/sa4zet-org/docker.img.openlitespeed'
+          docker build --squash --file openlitespeed.dockerfile --tag="$openlitespeed_img_name:$now" --tag="$openlitespeed_img_name:latest" --build-arg="docker_img=$openlitespeed_img_name" .
+          docker push $openlitespeed_img_name:$now
+          docker push $openlitespeed_img_name:latest

@@ -1,0 +1,5 @@
+Types: deb
+URIs: http://rpms.litespeedtech.com/debian/
+Suites: trixie
+Components: main
+Signed-By: /etc/apt/trusted.gpg.d/lightspeed-debian-repo.gpg
